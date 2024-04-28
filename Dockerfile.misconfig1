@@ -3,7 +3,8 @@ FROM ubuntu-ansible
 # This part should be automated (maybe in python?):
 # --------------
 
-# Add a new group and user, but don't add the user to the correct group intentionally
+# Add groups "mygroup" and "incorrectgroup", add user "myuser", add myuser to 
+# incorrectgroup.
 RUN adduser --group mygroup && \
     adduser --group incorrectgroup && \
     adduser myuser &&\
