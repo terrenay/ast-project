@@ -23,4 +23,4 @@ COPY playbook.yml /home/myuser/playbook.yml
 WORKDIR /home/myuser
 
 # Run the playbook
-CMD ["ansible-playbook", "-vv", "playbook.yml"]
+# CMD [ "/bin/bash", "-c"]
