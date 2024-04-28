@@ -3,7 +3,7 @@
   hosts: localhost
   tasks:
     - name: Ensure a user exists and is in a specific group
-      user:
+      ansible.builtin.user:
         name: myuser
         group: mygroup
         state: present
