@@ -23,7 +23,7 @@ COPY playbook.yml /home/myuser/playbook.yml
 # Set the working directory to where the playbook is located
 WORKDIR /home/myuser
 
-# The playbook can now be executed starting the container and running
+# The playbook can now be executed by starting the container and running
 # $ansible-playbook playbook.yml
 
 # Make sure to run $/bin/bash afterwards to keep the container alive so the results can
