@@ -7,7 +7,7 @@ To create the containers and run the playbook, do the following:
 
 To verify if the playbook worked, do the following:
 
-    docker run -it misconfig1 /bin/bash
+    docker exec -it misconfig1 /bin/bash
     groups myuser
 
 The user returned by whoami should be root (otherwise the playbook fails because a non-root user is not allowed to change user groups). The user myuser should be part of mygroup, if the playbook executed correctly.
