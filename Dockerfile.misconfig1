@@ -1,0 +1,19 @@
+FROM ubuntu-ansible
+
+# Add a new group and user, but don't add the user to the correct group intentionally
+RUN groupadd mygroup && \
+    groupadd incorrectgroup && \
+    useradd -m -s /bin/bash -G incorrectgroup myuser
+
+# Set any specific user settings here, for example:
+# Change the default group for the user
+USER root
+
+# Copy your local Ansible playbook to the container
+COPY playbook.yml /home/myuser/playbook.yml
+
+# Set the working directory to where the playbook is located
+WORKDIR /home/myuser
+
+# Run the playbook
+CMD ["ansible-playbook", "playbook.yml"]

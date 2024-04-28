@@ -1,0 +1,7 @@
+# Use the latest Ubuntu LTS release as the base image
+FROM ubuntu:latest
+
+RUN apt update
+RUN apt install --yes software-properties-common
+RUN add-apt-repository --yes --update ppa:ansible/ansible
+RUN apt install --yes ansible

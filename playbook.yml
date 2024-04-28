@@ -1,0 +1,9 @@
+---
+- name: Modify user settings
+  hosts: localhost
+  tasks:
+    - name: Ensure a user exists and is in a specific group
+      user:
+        name: myuser
+        group: mygroup
+        state: present
