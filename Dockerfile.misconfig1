@@ -4,9 +4,10 @@ FROM ubuntu-ansible
 # --------------
 
 # Add a new group and user, but don't add the user to the correct group intentionally
-RUN groupadd mygroup && \
-    groupadd incorrectgroup && \
-    useradd -m -s /bin/bash -G incorrectgroup myuser
+RUN adduser --group mygroup && \
+    adduser --group incorrectgroup && \
+    adduser myuser &&\
+    adduser myuser incorrectgroup
 
 # --------------
 
@@ -22,4 +23,4 @@ COPY playbook.yml /home/myuser/playbook.yml
 WORKDIR /home/myuser
 
 # Run the playbook
-CMD ["ansible-playbook", "playbook.yml"]
+CMD ["ansible-playbook", "-vv", "playbook.yml"]
