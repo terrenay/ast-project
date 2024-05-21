@@ -7,8 +7,8 @@ FROM ubuntu-ansible
 # incorrectgroup.
 RUN adduser --group mygroup && \
     adduser --group incorrectgroup && \
-    adduser myuser &&\
-    adduser myuser incorrectgroup
+    adduser myuser
+#     adduser myuser incorrectgroup
 
 # --------------
 
@@ -20,11 +20,17 @@ USER root
 # Copy our local Ansible playbook to the container
 COPY playbook.yml /home/myuser/playbook.yml
 COPY start_ansible.sh /home/myuser/start_ansible.sh
+COPY configuration_change_1.py /home/myuser/configuration_change_1.py
 
 # Set the working directory to where the playbook is located
 WORKDIR /home/myuser
 
+# First add the user to a dummy group in order to get a system call trace
+RUN strace -o strace_output.txt -f adduser myuser incorrectgroup
+# The python script uses the system call trace and changes the system state
+RUN python3 configuration_change_1.py
 RUN chmod +x start_ansible.sh
+
 # The playbook can now be executed by starting the container and running
 # $ansible-playbook playbook.yml
 
