@@ -19,12 +19,15 @@ USER root
 
 # Copy our local Ansible playbook to the container
 COPY playbook.yml /home/myuser/playbook.yml
+COPY start_ansible.sh /home/myuser/start_ansible.sh
 
 # Set the working directory to where the playbook is located
 WORKDIR /home/myuser
 
+RUN chmod +x start_ansible.sh
 # The playbook can now be executed by starting the container and running
 # $ansible-playbook playbook.yml
 
 # Make sure to run $/bin/bash afterwards to keep the container alive so the results can
 # be inspected with docker exec!
+ENTRYPOINT [ "./start_ansible.sh" ]

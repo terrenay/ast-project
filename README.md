@@ -2,7 +2,7 @@ To create the containers and run the playbook, do the following:
 
     docker build -t ubuntu-ansible -f Dockerfile.base .
     docker build -t misconfig1 -f Dockerfile.misconfig1 .
-    docker run -v playbook.yml:/home/myuser/playbook -it misconfig1 sh -c "ansible-playbook -vvv playbook.yml; /bin/bash"
+    docker run -v playbook.yml:/home/myuser/playbook -it misconfig1
 
 The -v flag mounts the local playbook into the container so it can be executed. The -it flag is required to later establish a connection to the container via "docker exec". 
 The "sh -c" spawns a shell in the container and executes first the ansible-playbook command and then the /bin/bash command. Without the /bin/bash command, the container would die as soon as the playbook has finished executing, which would make it impossible to connect to it via "docker exec" later on.
