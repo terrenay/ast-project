@@ -5,10 +5,12 @@ FROM ubuntu-ansible
 
 # Add groups "mygroup" and "incorrectgroup", add user "myuser", add myuser to 
 # incorrectgroup.
-RUN adduser --group mygroup && \
-    adduser --group incorrectgroup && \
-    adduser myuser
-#     adduser myuser incorrectgroup
+# RUN adduser --group mygroup && \
+#     adduser --group incorrectgroup && \
+#     adduser myuser
+#the user-related syscalls are only issued if this is included.
+#because group mygroup apparently has to exist for ansible to work. maybe
+#another flag in playbook is required?
 
 # --------------
 
@@ -20,15 +22,15 @@ USER root
 # Copy our local Ansible playbook to the container
 COPY playbook.yml /home/myuser/playbook.yml
 COPY start_ansible.sh /home/myuser/start_ansible.sh
-COPY configuration_change_1.py /home/myuser/configuration_change_1.py
+COPY strace_analysis.py /home/myuser/strace_analysis.py
 
 # Set the working directory to where the playbook is located
 WORKDIR /home/myuser
 
 # First add the user to a dummy group in order to get a system call trace
-RUN strace -o strace_output.txt -f adduser myuser incorrectgroup
+# RUN strace -o strace_output.txt -f adduser myuser incorrectgroup
 # The python script uses the system call trace and changes the system state
-RUN python3 configuration_change_1.py
+# RUN python3 configuration_change_1.py
 RUN chmod +x start_ansible.sh
 
 # The playbook can now be executed by starting the container and running

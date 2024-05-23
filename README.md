@@ -2,11 +2,9 @@ To create the containers and run the playbook, do the following:
 
     docker build -t ubuntu-ansible -f Dockerfile.base .
     docker build -t misconfig1 -f Dockerfile.misconfig1 .
-    docker run -v playbook.yml:/home/myuser/playbook -it misconfig1
+    docker run -it misconfig1
 
-The -v flag mounts the local playbook into the container so it can be executed. The -it flag is required to later establish a connection to the container via "docker exec". 
-The "sh -c" spawns a shell in the container and executes first the ansible-playbook command and then the /bin/bash command. Without the /bin/bash command, the container would die as soon as the playbook has finished executing, which would make it impossible to connect to it via "docker exec" later on.
-
+The -it flag is required to later establish a connection to the container via "docker exec". When the container starts, the start_ansible.sh script is executed in the /home/myuser directory inside the container. The script first executes the playbook attached to strace to monitor its system calls and logs them into a txt file. Then it runs the python script to analyze the system call trace and find out what it does and what system resources it could change. 
 
 To verify if the playbook worked, do the following:
 

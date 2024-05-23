@@ -2,6 +2,11 @@
 - name: Modify user settings
   hosts: localhost
   tasks:
+    - name: Ensure group "mygroup" exists
+      ansible.builtin.group:
+        name: mygroup
+        state: present
+        
     - name: Ensure a user exists and is in a specific group
       ansible.builtin.user:
         name: myuser
