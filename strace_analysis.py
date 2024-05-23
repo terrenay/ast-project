@@ -1,3 +1,4 @@
+import subprocess
 
 actions = []
 
@@ -11,7 +12,6 @@ class GroupExists(Fact):
     
     def __str__(self):
         return f"GroupExists(groupname='{self.groupname}')"
-
 
 class Action:
     def __init__(self):
@@ -34,7 +34,6 @@ class GroupAdd(Action):
 
     def __str__(self):
         return f"GroupAdd(groupname='{self.groupname}', prerequisite={self.prerequisite})"
-
 
 def parse_groupadd(group_string: str):
     tmp = group_string.split('[')[1]
@@ -61,7 +60,7 @@ def analyze_trace(trace_lines):
                 parse_groupadd(line)
 
 print("Starting analysis")
-with open("strace_log.txt", 'r') as trace_lines:
+with open("logs/strace_log.txt", 'r') as trace_lines:
     analyze_trace(trace_lines)
     for a in actions:
         print(a)

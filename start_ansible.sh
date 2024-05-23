@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-strace -o strace_log.txt -f ansible-playbook playbook.yml
-python3 strace_analysis.py
+./modifications.sh
+strace -o /home/myuser/logs/strace_log.txt -f ansible-playbook playbook.yml
 # bash
