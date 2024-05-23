@@ -1,12 +1,3 @@
-##IDEA: simulate adding a user to a group and monitor system calls. 
-# Filter them to get paths to files. 
-# Modify the permissions of these files in order to modify the system state. 
-# Everything works in an automated manner.
-
-import re
-import os
-import shutil
-import random
 
 actions = []
 
