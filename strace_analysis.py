@@ -1,6 +1,7 @@
 import subprocess
 
 actions = []
+mutations = []
 
 
 class Fact:
@@ -16,6 +17,9 @@ class GroupExists(Fact):
 class Action:
     def __init__(self):
         self.prerequisite: Fact = None
+
+    def mutate(self):
+        pass
 
 class UserAdd(Action):
     def __init__(self, username: str, groupname: str):
@@ -35,6 +39,31 @@ class GroupAdd(Action):
     def __str__(self):
         return f"GroupAdd(groupname='{self.groupname}', prerequisite={self.prerequisite})"
 
+    def mutate(self):
+        command = "groupadd " + self.groupname
+        mutations.append(command)
+
+class LChown(Action):
+    def __init__(self, filename: str, owner_uid: int, group_gid: int):
+        super().__init__()
+        self.filename = filename
+        self.owner_uid = owner_uid
+        self.group_gid = group_gid
+
+    def __str__(self):
+        return f"LChown(filename='{self.filename}', owner='{self.owner_uid}', group='{self.group_gid}', prerequisite={self.prerequisite})"
+
+    def mutate(self):
+        command = "mkdir " + self.filename
+        mutations.append(command)
+        filename2 = self.filename + "2"
+        command2 = "mkdir " + filename2
+        mutations.append(command2)
+        command3 = f"ln -s {self.filename} {filename2}"
+        command4 = f"ln -s {filename2} {self.filename}"
+        mutations.append(command3)
+        mutations.append(command4)
+
 def parse_groupadd(group_string: str):
     tmp = group_string.split('[')[1]
     tmp2 = tmp.split(']')[0]
@@ -50,6 +79,15 @@ def parse_useradd(useradd_string: str):
     username = tmp3[4].split('"')[1]
     actions.append(UserAdd(username, groupname))
 
+def parse_lchown(lchown_string: str):
+    tmp = lchown_string.split('(')[1]
+    tmp2 = tmp.split(')')[0]
+    tmp3 = tmp2.split(',')
+    filename = tmp3[0].split('"')[1]
+    owner_uid = int(tmp3[1])
+    group_gid = int(tmp3[2])
+    actions.append(LChown(filename, owner_uid, group_gid))
+
 
 def analyze_trace(trace_lines):
     for line in trace_lines:
@@ -58,9 +96,17 @@ def analyze_trace(trace_lines):
                 parse_useradd(line)
             if 'groupadd' in line:
                 parse_groupadd(line)
+        if 'lchown("' in line:
+            # print(line)
+            parse_lchown(line)
 
 print("Starting analysis")
 with open("logs/strace_log.txt", 'r') as trace_lines:
     analyze_trace(trace_lines)
     for a in actions:
-        print(a)
+        print("Mutating " + str(a))
+        a.mutate()
+    with open("modifications.sh", 'w') as mods:
+        for m in mutations:
+            print("Writing mutations to modification.sh: " + m)
+            mods.write(m + "\n")
