@@ -36,7 +36,6 @@ print("Running first Docker container to capture system call traces...")
 run_docker('docker build -t misconfig1 -f Dockerfile.misconfig1 .')
 run_docker_with_output('docker run --name ansible_run1 -v "$(pwd)/logs:/home/myuser/logs" -it misconfig1')
 time.sleep(0.3)
-run_docker('strace-log-merge logs/strace_log > logs/merged_trace.log')
 remove_strace_logs()
 time.sleep(0.3)
 # Analyze the trace file locally
@@ -49,7 +48,6 @@ print("Running second Docker container to execute playbook with modifications...
 run_docker('docker build -t misconfig1 -f Dockerfile.misconfig1 .')
 run_docker_with_output('docker run --name ansible_run2 -v "$(pwd)/logs:/home/myuser/logs" -it misconfig1')
 time.sleep(0.3)
-run_docker('strace-log-merge logs/strace_log > logs/merged_trace.log')
 remove_strace_logs()
 time.sleep(0.3)
 
