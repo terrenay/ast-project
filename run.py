@@ -33,7 +33,13 @@ def run_docker(container_name):
         if "fatal: [localhost]: FAILED!" in output:
             print("Ansible threw an error. This might be an actual bug or it might\
                   be due to a mutation changing some of Ansible's requirements.")
-            exit()
+
+def exit_if_error():
+    if os.path.exists("logs/error.txt"):
+        with open("logs/error.txt", 'r') as file:
+            print("VERIFICATION ERROR!")
+            print(file.read())
+        exit()
 
 def remove_strace_logs():
     files = glob.glob("logs/strace_log*")
@@ -43,20 +49,24 @@ def remove_strace_logs():
 def remove_containers():
     run_command('docker rm ansible_run1; docker rm ansible_run2')
 
+def remove_error_file():
+    if os.path.exists("logs/error.txt"):
+        os.remove("logs/error.txt")
+
 
 def main():
     with open("modifications.sh", "w") as mod_file:
         mod_file.write("")
     
     remove_containers()
+    remove_error_file()
 
     # First Docker run to capture system call traces
     print("Running first Docker container to capture system call traces...")
     run_command('docker build -t misconfig1 -f Dockerfile.misconfig1 .')
     run_docker("ansible_run1")
-    time.sleep(0.3)
     remove_strace_logs()
-    time.sleep(0.3)
+
     # Analyze the trace file locally
     print("Analyzing system call traces...")
     subprocess.run(['python3', 'strace_analysis.py'])
@@ -66,9 +76,9 @@ def main():
 
     run_command('docker build -t misconfig1 -f Dockerfile.misconfig1 .')
     run_docker("ansible_run2")
-    time.sleep(0.3)
+    exit_if_error()
+
     remove_strace_logs()
-    time.sleep(0.3)
 
     print("Docker runs completed.")
 
