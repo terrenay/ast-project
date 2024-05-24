@@ -1,4 +1,5 @@
 import subprocess
+import time
 
 actions = []
 mutations = []
@@ -61,6 +62,13 @@ class GroupAdd(Action):
     def __str__(self):
         return f"GroupAdd(groupname='{self.groupname}', prerequisite={self.prerequisite})"
 
+    def parse(group_string: str):
+        tmp = group_string.split('[')[1]
+        tmp2 = tmp.split(']')[0]
+        tmp3 = tmp2.split(',')[1]
+        tmp4 = tmp3.split('"')[1]
+        return GroupAdd(tmp4)
+
     def mutate(self):
         # Mutation 1: Group already exists
         commands = ["groupadd " + self.groupname]
@@ -97,12 +105,34 @@ class LChown(Action):
         commands.append('adduser --disabled-password --gecos "" randomuser')
         commands.append('sudo chown -R randomuser:randomuser ' + self.foldername)
 
-def parse_groupadd(group_string: str):
-    tmp = group_string.split('[')[1]
-    tmp2 = tmp.split(']')[0]
-    tmp3 = tmp2.split(',')[1]
-    tmp4 = tmp3.split('"')[1]
-    actions.append(GroupAdd(tmp4))
+class ReadLink(Action):
+    def __init__(self, pathname: str, buf_ptr: str, buf_size: int):
+        super().__init__()
+        self.pathname = pathname
+        self.buf_ptr = buf_ptr
+        self.buf_size = buf_size
+
+    def __str__(self):
+        return f"ReadLink(pathname='{self.pathname}', buf_ptr='{self.buf_ptr}', buf_size='{self.buf_size}', prerequisite={self.prerequisite})"
+
+    def parse(readlink_string: str):
+        tmp = readlink_string.split('(')[1]
+        tmp2 = tmp.split(')')[0]
+        tmp3 = tmp2.split(',')
+        pathname = tmp3[0].split('"')[1]
+        buf_ptr = tmp3[1]
+        buf_size = int(tmp3[2])
+
+        #MANY readlink syscalls >7^^
+        if "ansible" in pathname or "python" in pathname:
+            return None
+
+        return ReadLink(pathname, buf_ptr, buf_size)
+
+    def mutate(self):
+        ...
+        #todo!
+
 
 def parse_useradd(useradd_string: str):
     tmp = useradd_string.split('[')[1]
@@ -125,20 +155,28 @@ def parse_lchown(lchown_string: str):
 
 def analyze_trace(trace_lines):
     for line in trace_lines:
+        new_action = None
         if 'execve("' in line:
             if 'useradd' in line:
                 parse_useradd(line)
             if 'groupadd' in line:
-                parse_groupadd(line)
+                print("Found groupadd")
+                new_action = GroupAdd.parse(line)
         if 'lchown("' in line:
-            print(line)
             parse_lchown(line)
+        if 'readlink("' in line:
+            # print("Found readlink")
+            # print(line)
+            new_action = ReadLink.parse(line)
+        
+        if new_action is not None:
+            actions.append(new_action)
 
 print("Starting analysis")
-with open("logs/strace_log.txt", 'r') as trace_lines:
+with open("logs/merged_trace.log", 'r') as trace_lines:
     analyze_trace(trace_lines)
     for a in actions:
-        print("Mutating " + str(a))
+        print("Action: " + str(a))
         a.mutate()
     with open("modifications.sh", 'w') as mods:
         for m in mutations:
