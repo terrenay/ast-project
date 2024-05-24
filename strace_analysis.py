@@ -1,6 +1,10 @@
 import subprocess
 import time
 
+#This script runs locally and analyses the trace file in /logs.
+#It modifies modifications.sh to mutate the initial system configuration
+#of the next docker container in a way that's relevant to the playbook.
+
 actions = []
 mutations = []
 
