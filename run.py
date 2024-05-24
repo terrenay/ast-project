@@ -42,7 +42,6 @@ time.sleep(0.3)
 # Analyze the trace file locally
 print("Analyzing system call traces...")
 subprocess.run(['python3', 'strace_analysis.py'])
-exit()
 
 # Second Docker run to execute the playbook with pre-configuration
 print("Running second Docker container to execute playbook with modifications...")
