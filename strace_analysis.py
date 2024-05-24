@@ -18,6 +18,9 @@ class GroupExists(Fact):
 class Action:
     def __init__(self):
         self.prerequisite: Fact = None
+        
+    def parse(self):
+        pass
 
     def mutate(self):
         pass
@@ -31,6 +34,14 @@ class UserAdd(Action):
         
     def __str__(self):
         return f"UserAdd(username='{self.username}', groupname='{self.groupname}', prerequisite={self.prerequisite})"
+    
+    def parse(useradd_string: str):
+        tmp = useradd_string.split('[')[1]
+        tmp2 = tmp.split(']')[0]
+        tmp3 = tmp2.split(',')
+        groupname = tmp3[2].split('"')[1]
+        username = tmp3[4].split('"')[1]
+        actions.append(UserAdd(username, groupname))
     
     def mutate(self):
         # Mutation 1: Add User and add it to different group
@@ -84,6 +95,16 @@ class LChown(Action):
     def __str__(self):
         return f"LChown(foldername='{self.foldername}', owner='{self.owner_uid}', group='{self.group_gid}', prerequisite={self.prerequisite})"
 
+    #TODO: make sure it's a folder
+    def parse(lchown_string: str):
+        tmp = lchown_string.split('(')[1]
+        tmp2 = tmp.split(')')[0]
+        tmp3 = tmp2.split(',')
+        foldername = tmp3[0].split('"')[1]
+        owner_uid = int(tmp3[1])
+        group_gid = int(tmp3[2])
+        actions.append(LChown(foldername, owner_uid, group_gid))
+
     def mutate(self):
         # Mutation 1: Infinitely recursive Symlinks
         commands = []
@@ -133,42 +154,18 @@ class ReadLink(Action):
         ...
         #todo!
 
-
-def parse_useradd(useradd_string: str):
-    tmp = useradd_string.split('[')[1]
-    tmp2 = tmp.split(']')[0]
-    tmp3 = tmp2.split(',')
-    groupname = tmp3[2].split('"')[1]
-    username = tmp3[4].split('"')[1]
-    actions.append(UserAdd(username, groupname))
-
-#TODO: make sure it's a folder
-def parse_lchown(lchown_string: str):
-    tmp = lchown_string.split('(')[1]
-    tmp2 = tmp.split(')')[0]
-    tmp3 = tmp2.split(',')
-    foldername = tmp3[0].split('"')[1]
-    owner_uid = int(tmp3[1])
-    group_gid = int(tmp3[2])
-    actions.append(LChown(foldername, owner_uid, group_gid))
-
-
 def analyze_trace(trace_lines):
     for line in trace_lines:
         new_action = None
         if 'execve("' in line:
             if 'useradd' in line:
-                parse_useradd(line)
+                new_action = UserAdd.parse(line)
             if 'groupadd' in line:
-                print("Found groupadd")
                 new_action = GroupAdd.parse(line)
         if 'lchown("' in line:
-            parse_lchown(line)
+            new_action = LChown.parse(line)
         if 'readlink("' in line:
-            # print("Found readlink")
-            # print(line)
             new_action = ReadLink.parse(line)
-        
         if new_action is not None:
             actions.append(new_action)
 
