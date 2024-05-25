@@ -1,7 +1,9 @@
 import subprocess
 
 #This script is executed inside the container after the ansible playbook has
-#finished. 
+#finished. For each playbook.yml file, there must be a corresponding verify.py
+#file checking for correct state reconciliation. Ensuring this is up to the programmer
+#who writes the playbook.
 
 def get_command_stdout(command):
     result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
