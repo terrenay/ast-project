@@ -1,19 +1,5 @@
 FROM ubuntu-ansible
 
-# This part should be automated (maybe in python?):
-# --------------
-
-# Add groups "mygroup" and "incorrectgroup", add user "myuser", add myuser to 
-# incorrectgroup.
-# RUN adduser --group mygroup && \
-#     adduser --group incorrectgroup && \
-#     adduser myuser
-#the user-related syscalls are only issued if this is included.
-#because group mygroup apparently has to exist for ansible to work. maybe
-#another flag in playbook is required?
-
-# --------------
-
 # The user needs to be root, otherwise the playbook will fail.
 # This is because the playbook performs security-critical changes
 # to the environment.
@@ -23,6 +9,7 @@ USER root
 COPY playbook.yml /home/myuser/playbook.yml
 COPY start_ansible.sh /home/myuser/start_ansible.sh
 COPY modifications.sh /home/myuser/modifications.sh
+COPY verify.py /home/myuser/verify.py
 
 # Set the working directory to where the playbook is located
 WORKDIR /home/myuser
@@ -34,9 +21,4 @@ WORKDIR /home/myuser
 RUN chmod +x start_ansible.sh
 RUN chmod +x modifications.sh
 
-# The playbook can now be executed by starting the container and running
-# $ansible-playbook playbook.yml
-
-# Make sure to run $/bin/bash afterwards to keep the container alive so the results can
-# be inspected with docker exec!
 ENTRYPOINT [ "./start_ansible.sh" ]

@@ -13,12 +13,6 @@
         group: mygroup
         state: present
 
-    - name: Create folder and set permissions if folder does not already exist
-      ansible.builtin.file:
-        path: /etc/foo
-        state: directory
-        mode: '0755'
-
     - name: Change folder ownership and group
       ansible.builtin.file:
         path: /etc/foo
@@ -26,3 +20,4 @@
         recurse: yes
         owner: myuser
         group: mygroup
+        mode: u=rw,g=r,o=r
