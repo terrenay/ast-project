@@ -4,10 +4,14 @@ Please note that this artifact has been tested on an Ubuntu system. You need to 
 # Running
 
 Only when running the artifact for the first type, you need to build the base image once before proceeding. This might take a minute:
-    docker build -t ubuntu-ansible -f Dockerfile.base .
+```bash
+docker build -t ubuntu-ansible -f Dockerfile.base .
+``` 
 
 Then, to run the artifact, simply type:
-    python3 run.py
+```bash
+python3 run.py
+``` 
 
 
 ## What is happening
