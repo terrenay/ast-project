@@ -28,12 +28,9 @@ def main():
         exit_with_error("myuser is not in mygroup or mygroup does not exist!")
         
     ls_output = get_command_stdout("ls -la /etc/foo")
-    # print("Verify: Output of ls_output: ")
     ls_output_split = ls_output.split()
-    # print(ls_output_split)
     permissions = ls_output_split[2]
     user = ls_output_split[4]
-    # print(f"Owner: {user}")
     group = ls_output_split[5]
     if user != "myuser":
         exit_with_error("myuser is not owner of foo directory!")
@@ -42,7 +39,6 @@ def main():
     if permissions != "drw-r--r--":
         exit_with_error("Incorrect permissions of /etc/foo directory")
 
-    # print(ls_output)
     print("Verification has passed successfully! State reconciled by Ansible.")
 
 

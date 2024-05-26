@@ -3,7 +3,7 @@ import time
 import os
 import glob
 
-#This script is the main driver of the whole program.
+# This script is the main driver of the whole program.
 
 # Function to run Docker commands
 def run_command(command):

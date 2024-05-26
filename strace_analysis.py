@@ -99,7 +99,6 @@ class LChown(Action):
     def __str__(self):
         return f"LChown(foldername='{self.foldername}', owner='{self.owner_uid}', group='{self.group_gid}', prerequisite={self.prerequisite})"
 
-    #TODO: make sure it's a folder
     def parse(lchown_string: str):
         tmp = lchown_string.split('(')[1]
         tmp2 = tmp.split(')')[0]
@@ -129,34 +128,7 @@ class LChown(Action):
         commands = []
         commands.append('adduser --disabled-password --gecos "" randomuser')
         commands.append('sudo chown -R randomuser:randomuser ' + self.foldername)
-
-class ReadLink(Action):
-    def __init__(self, pathname: str, buf_ptr: str, buf_size: int):
-        super().__init__()
-        self.pathname = pathname
-        self.buf_ptr = buf_ptr
-        self.buf_size = buf_size
-
-    def __str__(self):
-        return f"ReadLink(pathname='{self.pathname}', buf_ptr='{self.buf_ptr}', buf_size='{self.buf_size}', prerequisite={self.prerequisite})"
-
-    def parse(readlink_string: str):
-        tmp = readlink_string.split('(')[1]
-        tmp2 = tmp.split(')')[0]
-        tmp3 = tmp2.split(',')
-        pathname = tmp3[0].split('"')[1]
-        buf_ptr = tmp3[1]
-        buf_size = int(tmp3[2])
-
-        #MANY readlink syscalls >7^^
-        if "ansible" in pathname or "python" in pathname:
-            return None
-
-        return ReadLink(pathname, buf_ptr, buf_size)
-
-    def mutate(self):
-        ...
-        #todo!
+        mutations.append(commands)
 
 def analyze_trace(trace_lines):
     for line in trace_lines:
@@ -168,8 +140,6 @@ def analyze_trace(trace_lines):
                 new_action = GroupAdd.parse(line)
         if 'lchown("' in line:
             new_action = LChown.parse(line)
-        if 'readlink("' in line:
-            new_action = ReadLink.parse(line)
         if new_action is not None:
             actions.append(new_action)
 
