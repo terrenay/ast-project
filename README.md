@@ -41,3 +41,13 @@ The playbook is executed twice, in different containers. Before running the play
 2. reconciles the state correctly without printing an error message.
 
 However, the inconsistency is that an Ansible error is printed (see expected result) even though it manages to reconcile the state correctly, as determined by the `verify.py` script. Therefore, the Ansible error should not appear in the first place.
+
+## How to extend this to more system calls
+
+If you want to use this framework to test more Ansible modules, you can follow these steps:
+1. Adapt `playbook.yml` to use the modules you want to test.
+2. Write a corresponding `verify.py` script to verify if the state you declare in the playbook has actually been reconciled.
+3. In `strace_analysis.py`, extend the program to recognize the system calls which are relevant for your modules (if those already provided are not sufficient):
+    1. Create a new class for each relevant system call, following the same structure as for example GroupAdd.
+    2. Write a parse() function for your new class which takes as input a line of the system call log file, and call this function from the analyze_trace() function.
+    3. Write a mutate() function for your new class which generates meaningful mutations and append those to the global mutations array.
